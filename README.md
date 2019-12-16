@@ -1,30 +1,9 @@
-# AngularCypress2
+# Testing Angular in Cypress with TypeScript
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.20.
+Does not come with typescript ready. Some options:
 
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+https://github.com/bahmutov/add-typescript-to-cypress
+https://github.com/basarat/typescript-book/blob/master/docs/testing/cypress.md
 
 # Cypress Setup
 
@@ -40,9 +19,67 @@ You can call you're project whatever you want, but I'll be using `angular-cypres
 ng new angular-cypress
 ```
 
-You'll the creation of a bunch of files and directories and then *hooray* - we have our new project. Change into this directory with the command:
+You'll see the creation of a bunch of files and directories and then _hooray_ - we have our new project. Change into this directory with the command:
 
 ```
 cd angular-cypress
 ```
+
+Now we want to install the necessary components for cypress and running TypeScript tests in Cypress with this command:
+
+```
+npm install cypress webpack @cypress/webpack-preprocessor typescript ts-loader
+```
+
+This will have created
+
+Run Cypress to create test directory
+
+Add `tsconfig.json`
+
+```
+{
+  "compilerOptions": {
+    "strict": true,
+    "sourceMap": true,
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["dom", "es6"],
+    "types": ["cypress"],
+    "jsx": "react",
+    "experimentalDecorators": true
+  },
+  "include": [
+    "**/*.ts"
+  ],
+  "compileOnSave": false
+}
+```
+
+Go to `cypress/plugins/index.js` and change `index.js`:
+
+```
+const wp = require("@cypress/webpack-preprocessor");
+module.exports = on => {
+  const options = {
+    webpackOptions: {
+      resolve: {
+        extensions: [".ts", ".tsx", ".js"]
+      },
+      module: {
+        rules: [
+          {
+            test: /\.tsx?$/,
+            loader: "ts-loader",
+            options: { transpileOnly: true }
+          }
+        ]
+      }
+    }
+  };
+  on("file:preprocessor", wp(options));
+};
+```
+
+Then you can create TypeScript tests around our application:
 
